@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flask_marshmallow import Marshmallow
 import os
 from dotenv import load_dotenv
 
@@ -19,7 +18,6 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
-ma = Marshmallow()
 cors = CORS()
 
 
@@ -42,14 +40,10 @@ def create_app(config_object=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    ma.init_app(app)
     cors.init_app(app, origins=os.getenv('FRONTEND_URL', 'http://localhost:3000'))
 
-    # Register blueprints (will add routes in later stages)
-    # from app.routes import auth_bp, car_bp, rental_bp
-    # app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    # app.register_blueprint(car_bp, url_prefix='/api/cars')
-    # app.register_blueprint(rental_bp, url_prefix='/api/rentals')
+    # Import models (for Flask-Migrate to detect)
+    from app.models import User, Car, Rental, Payment  # noqa
 
     @app.route('/')
     def home():
