@@ -9,6 +9,11 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CarList from './pages/CarList';
+import CarDetail from './pages/CarDetail';
+import MyRentals from './pages/MyRentals';
+import Profile from './pages/Profile';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminCars from './pages/admin/AdminCars';
 import './styles/App.css';
 
 function App() {
@@ -21,24 +26,25 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/cars" element={<CarList />} />
-                    <Route path="/cars/:id" element={
-                        <PrivateRoute>
-                            <div>Car Detail Page - Coming Soon</div>
-                        </PrivateRoute>
-                    } />
+                    <Route path="/cars/:id" element={<CarDetail />} />
                     <Route path="/my-rentals" element={
                         <PrivateRoute>
-                            <div>My Rentals Page - Coming Soon</div>
+                            <MyRentals />
                         </PrivateRoute>
                     } />
                     <Route path="/profile" element={
                         <PrivateRoute>
-                            <div>Profile Page - Coming Soon</div>
+                            <Profile />
                         </PrivateRoute>
                     } />
                     <Route path="/admin/dashboard" element={
                         <PrivateRoute adminOnly>
-                            <div>Admin Dashboard - Coming Soon</div>
+                            <AdminDashboard />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/admin/cars" element={
+                        <PrivateRoute adminOnly>
+                            <AdminCars />
                         </PrivateRoute>
                     } />
                 </Routes>
