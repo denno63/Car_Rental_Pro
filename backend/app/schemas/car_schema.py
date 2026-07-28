@@ -24,6 +24,9 @@ class CarSchema(Schema):
     description = fields.Str()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+    
+    # Relationships - exclude to avoid recursion
+    rentals = fields.Nested('RentalSchema', many=True, dump_only=True, exclude=('car',))
 
     class Meta:
         model = Car
