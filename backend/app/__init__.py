@@ -95,8 +95,9 @@ def create_app(config_object=None):
     from app.models import User, Car, Rental, Payment  # noqa
 
     # Register blueprints
-    from app.routes import auth_bp
+    from app.routes import auth_bp, car_bp
     app.register_blueprint(auth_bp)
+    app.register_blueprint(car_bp)
 
     @app.route('/')
     def home():
