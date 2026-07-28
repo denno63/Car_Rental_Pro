@@ -30,8 +30,12 @@ class User(db.Model):
     def __init__(self, username, email, password, **kwargs):
         self.username = username
         self.email = email
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password_hash = self.hash_password(password)
         super(User, self).__init__(**kwargs)
+
+    def hash_password(self, password):
+        """Hash a password"""
+        return bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
         """Verify password against stored hash"""
@@ -48,8 +52,27 @@ class User(db.Model):
             'phone': self.phone,
             'role': self.role,
             'is_active': self.is_active,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+# JWT Callbacks - Add these to app/__init__.py
+def jwt_identity_lookup(payload):
+    """Get user from JWT identity"""
+    from app import db
+    user_id = payload.get('sub')
+    if user_id:
+        return User.query.get(int(user_id))
+    return None
+
+
+def jwt_claims_loader(user):
+    """Add custom claims to JWT"""
+    return {
+        'role': user.role,
+        'username': user.username
+    }

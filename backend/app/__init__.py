@@ -1,12 +1,12 @@
 """
-CarRentalPro - Car Rental Management System
+RentWheel - Car Rental Management System
 Flask Application Factory Pattern
 """
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, get_jwt_identity
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -35,6 +35,9 @@ def create_app(config_object=None):
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(
         os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)
     )
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = int(
+        os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 2592000)
+    )
 
     # Initialize extensions
     db.init_app(app)
@@ -42,8 +45,58 @@ def create_app(config_object=None):
     jwt.init_app(app)
     cors.init_app(app, origins=os.getenv('FRONTEND_URL', 'http://localhost:3000'))
 
+    # JWT Callbacks
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return str(user.id) if hasattr(user, 'id') else str(user)
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        from app.models import User
+        identity = jwt_data["sub"]
+        return User.query.get(int(identity))
+
+    @jwt.additional_claims_loader
+    def add_claims_to_access_token(identity):
+        from app.models import User
+        user = User.query.get(int(identity))
+        if user:
+            return {
+                'role': user.role,
+                'username': user.username
+            }
+        return {}
+
+    @jwt.unauthorized_loader
+    def unauthorized_response(callback):
+        return jsonify({
+            'error': 'Missing or invalid token'
+        }), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_response(callback):
+        return jsonify({
+            'error': 'Invalid token'
+        }), 401
+
+    @jwt.expired_token_loader
+    def expired_token_response(callback):
+        return jsonify({
+            'error': 'Token has expired'
+        }), 401
+
+    @jwt.revoked_token_loader
+    def revoked_token_response(callback):
+        return jsonify({
+            'error': 'Token has been revoked'
+        }), 401
+
     # Import models (for Flask-Migrate to detect)
     from app.models import User, Car, Rental, Payment  # noqa
+
+    # Register blueprints
+    from app.routes import auth_bp
+    app.register_blueprint(auth_bp)
 
     @app.route('/')
     def home():
