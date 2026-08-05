@@ -4,7 +4,7 @@ from app import db
 from app.models import Car
 from app.schemas import CarSchema, CarListSchema
 from app.utils.decorators import admin_required
-from sqlalchemy import or_, and_
+from sqlalchemy import Case, or_, and_
 import math
 
 car_bp = Blueprint('cars', __name__, url_prefix='/cars')

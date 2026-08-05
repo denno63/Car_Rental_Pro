@@ -179,6 +179,14 @@ def create_app(config_object=None):
     app.register_blueprint(car_bp, url_prefix='/api')
     app.register_blueprint(rental_bp, url_prefix='/api')
 
+   # Add this for debugging
+    @app.route('/debug/routes')
+    def list_routes():
+       routes = []
+       for rule in app.url_map.iter_rules():
+        routes.append(str(rule))
+       return jsonify({'routes': routes})
+
     @app.route('/')
     def home():
         return {

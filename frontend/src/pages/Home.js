@@ -14,7 +14,7 @@ const Home = () => {
     const loadCars = async () => {
         try {
             const response = await carService.getAvailable();
-            setCars(response.data.cars.slice(0, 4));
+            setCars(response.data?.cars?.slice(0, 4));
         } catch (error) {
             console.error('Error loading cars:', error);
         } finally {
