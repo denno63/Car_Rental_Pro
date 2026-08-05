@@ -26,9 +26,12 @@ def create_app(config_object=None):
 
     # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
+
+    # ✅ CRITICAL FIX: Changed DATABASE_URL to DATABASE_URI
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
         'DATABASE_URL', 'sqlite:///rentwheel.db'
     )
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(
@@ -59,11 +62,11 @@ def create_app(config_object=None):
     # Create tables and seed data on startup
     with app.app_context():
         db.create_all()
-        
+
         # Seed data if no users exist
         if User.query.count() == 0:
             print("🌱 Seeding database...")
-            
+
             # Create admin user
             admin = User(
                 username='admin',
@@ -74,7 +77,7 @@ def create_app(config_object=None):
                 role='admin'
             )
             db.session.add(admin)
-            
+
             # Create regular users
             users = [
                 User(
@@ -104,7 +107,7 @@ def create_app(config_object=None):
             ]
             for user in users:
                 db.session.add(user)
-            
+
             # Create cars
             cars = [
                 Car(make='Toyota', model='Camry', year=2022, license_plate='ABC123', color='Silver', daily_rate=65.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=15230, fuel_type='Gasoline', description='Comfortable sedan with great fuel economy.'),
@@ -120,7 +123,7 @@ def create_app(config_object=None):
             ]
             for car in cars:
                 db.session.add(car)
-            
+
             db.session.commit()
             print("✅ Database seeded with 4 users and 10 cars!")
 
@@ -170,7 +173,7 @@ def create_app(config_object=None):
             'error': 'Token has been revoked'
         }), 401
 
-    # ✅ Register blueprints with /api prefix
+    # Register blueprints with /api prefix
     from app.routes import auth_bp, car_bp, rental_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(car_bp, url_prefix='/api')
