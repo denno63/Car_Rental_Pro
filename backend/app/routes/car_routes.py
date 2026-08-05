@@ -1,6 +1,3 @@
-"""
-Car Routes - CRUD operations for car management
-"""
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
