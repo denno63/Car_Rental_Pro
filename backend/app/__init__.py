@@ -175,9 +175,9 @@ def create_app(config_object=None):
 
     # Register blueprints with /api prefix
     from app.routes import auth_bp, car_bp, rental_bp
-    app.register_blueprint(auth_bp, url_prefix='/api')
-    app.register_blueprint(car_bp, url_prefix='/api')
-    app.register_blueprint(rental_bp, url_prefix='/api')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(car_bp, url_prefix='/api/cars')
+    app.register_blueprint(rental_bp, url_prefix='/api/rental')
 
    # Add this for debugging
     @app.route('/debug/routes')

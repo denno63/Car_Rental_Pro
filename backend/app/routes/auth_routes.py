@@ -15,7 +15,7 @@ from app.models import User
 from datetime import datetime, timedelta
 import re
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__)
 
 
 def validate_email(email):

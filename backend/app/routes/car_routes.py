@@ -7,7 +7,7 @@ from app.utils.decorators import admin_required
 from sqlalchemy import Case, or_, and_
 import math
 
-car_bp = Blueprint('cars', __name__, url_prefix='/cars')
+car_bp = Blueprint('cars', __name__)
 
 # Initialize schemas
 car_schema = CarSchema()
