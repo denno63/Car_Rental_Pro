@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flask_marshmallow import Marshmallow
 import os
 from dotenv import load_dotenv
 
@@ -19,7 +18,7 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
-ma = Marshmallow()
+cors = CORS()
 
 
 def create_app(config_object=None):
@@ -44,16 +43,9 @@ def create_app(config_object=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    ma.init_app(app)
 
-    # Configure CORS - Allow all origins (for testing)
+    # Configure CORS - Allow all origins
     CORS(app, resources={
-        r"/api/*": {
-            "origins": "*",
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True,
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-        },
         r"/*": {
             "origins": "*",
             "allow_headers": ["Content-Type", "Authorization"],
@@ -61,6 +53,77 @@ def create_app(config_object=None):
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
         }
     })
+
+    # Import models BEFORE db.create_all()
+    from app.models import User, Car, Rental, Payment
+
+    # Create tables and seed data on startup
+    with app.app_context():
+        db.create_all()
+        
+        # Seed data if no users exist
+        if User.query.count() == 0:
+            print("🌱 Seeding database...")
+            
+            # Create admin user
+            admin = User(
+                username='admin',
+                email='admin@rentwheel.com',
+                password='Admin123!',
+                first_name='Admin',
+                last_name='User',
+                role='admin'
+            )
+            db.session.add(admin)
+            
+            # Create regular users
+            users = [
+                User(
+                    username='john_doe',
+                    email='john@example.com',
+                    password='John123!',
+                    first_name='John',
+                    last_name='Doe',
+                    role='customer'
+                ),
+                User(
+                    username='jane_smith',
+                    email='jane@example.com',
+                    password='Jane123!',
+                    first_name='Jane',
+                    last_name='Smith',
+                    role='customer'
+                ),
+                User(
+                    username='bob_wilson',
+                    email='bob@example.com',
+                    password='Bob123!',
+                    first_name='Bob',
+                    last_name='Wilson',
+                    role='customer'
+                )
+            ]
+            for user in users:
+                db.session.add(user)
+            
+            # Create cars
+            cars = [
+                Car(make='Toyota', model='Camry', year=2022, license_plate='ABC123', color='Silver', daily_rate=65.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=15230, fuel_type='Gasoline', description='Comfortable sedan with great fuel economy.'),
+                Car(make='Honda', model='CR-V', year=2023, license_plate='XYZ789', color='Blue', daily_rate=85.00, car_type='SUV', seats=5, transmission='Automatic', mileage=5000, fuel_type='Hybrid', description='Spacious SUV with hybrid technology.'),
+                Car(make='Tesla', model='Model 3', year=2023, license_plate='TESLA01', color='White', daily_rate=150.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=1200, fuel_type='Electric', description='Fully electric sedan with autopilot.'),
+                Car(make='BMW', model='X5', year=2022, license_plate='BMW777', color='Black', daily_rate=120.00, car_type='SUV', seats=7, transmission='Automatic', mileage=8200, fuel_type='Diesel', description='Luxury SUV with premium features.'),
+                Car(make='Ford', model='F-150', year=2022, license_plate='FORD150', color='Red', daily_rate=95.00, car_type='Truck', seats=5, transmission='Automatic', mileage=25000, fuel_type='Gasoline', description='Powerful pickup truck with towing capacity.'),
+                Car(make='Mercedes', model='C-Class', year=2023, license_plate='MER123', color='Silver', daily_rate=130.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=3500, fuel_type='Gasoline', description='Luxury sedan with elegant design.'),
+                Car(make='Hyundai', model='Tucson', year=2023, license_plate='HYUND01', color='Green', daily_rate=75.00, car_type='SUV', seats=5, transmission='Automatic', mileage=1800, fuel_type='Hybrid', description='Eco-friendly SUV with great fuel efficiency.'),
+                Car(make='Chevrolet', model='Malibu', year=2022, license_plate='CHEV01', color='White', daily_rate=70.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=18000, fuel_type='Gasoline', description='Reliable sedan perfect for business trips.'),
+                Car(make='Toyota', model='RAV4', year=2023, license_plate='RAV2023', color='Gray', daily_rate=88.00, car_type='SUV', seats=5, transmission='Automatic', mileage=2500, fuel_type='Hybrid', description='Popular SUV with hybrid efficiency.'),
+                Car(make='Nissan', model='Altima', year=2022, license_plate='ALT123', color='Blue', daily_rate=60.00, car_type='Sedan', seats=5, transmission='Automatic', mileage=22000, fuel_type='Gasoline', description='Affordable sedan with good mileage.')
+            ]
+            for car in cars:
+                db.session.add(car)
+            
+            db.session.commit()
+            print("✅ Database seeded with 4 users and 10 cars!")
 
     # JWT Callbacks
     @jwt.user_identity_loader
@@ -108,14 +171,11 @@ def create_app(config_object=None):
             'error': 'Token has been revoked'
         }), 401
 
-    # Import models (for Flask-Migrate to detect)
-    from app.models import User, Car, Rental, Payment  # noqa
-
     # Register blueprints
     from app.routes import auth_bp, car_bp, rental_bp
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(car_bp)
-    app.register_blueprint(rental_bp)
+    app.register_blueprint(auth_bp, url_prefix='/api')
+    app.register_blueprint(car_bp, url_prefix='/api')
+    app.register_blueprint(rental_bp, url_prefix='/api')
 
     @app.route('/')
     def home():
