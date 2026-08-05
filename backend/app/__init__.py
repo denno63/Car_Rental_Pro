@@ -177,7 +177,7 @@ def create_app(config_object=None):
     from app.routes import auth_bp, car_bp, rental_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(car_bp, url_prefix='/api/cars')
-    app.register_blueprint(rental_bp, url_prefix='/api/rental')
+    app.register_blueprint(rental_bp, url_prefix='/api/rentals')
 
    # Add this for debugging
     @app.route('/debug/routes')
