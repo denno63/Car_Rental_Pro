@@ -49,7 +49,7 @@ function App() {
                     } />
                 </Routes>
                 <ToastContainer position="bottom-right" />
-            </AuthProvider>
+            </AuthProvider> 
         </Router>
     );
 }
