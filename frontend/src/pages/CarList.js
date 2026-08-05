@@ -25,11 +25,6 @@ const CarList = () => {
         loadCarTypes();
     }, []);
 
-    // Load cars - runs when filters or page changes
-    useEffect(() => {
-        loadCars();
-    }, [filters, pagination.page]); // ✅ Added dependencies
-
     const loadCarTypes = async () => {
         try {
             const response = await carService.getTypes();
@@ -39,7 +34,6 @@ const CarList = () => {
         }
     };
 
-    // ✅ Wrap loadCars in useCallback to prevent re-creation
     const loadCars = useCallback(async () => {
         try {
             setLoading(true);
@@ -61,7 +55,11 @@ const CarList = () => {
         } finally {
             setLoading(false);
         }
-    }, [filters, pagination.page]); // ✅ Added dependencies
+    }, [filters, pagination.page]);
+
+    useEffect(() => {
+        loadCars();
+    }, [loadCars]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
