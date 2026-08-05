@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: rentwheel-backend
+    runtime: python
+    repo: https://github.com/denno63/Car_Rental_Pro
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rentwheel-db
+          property: connectionString
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      gunicorn run:app
+
+  - type: web
+    name: rentwheel-frontend
+    runtime: node
+    repo: https://github.com/yourusername/rentwheel
+    plan: free
+    buildCommand: |
+      cd frontend
+      npm install
+      npm run build
+    startCommand: |
+      cd frontend
+      npx serve -s build -l 3000
+
+  - type: postgresql
+    name: rentwheel-db
+    plan: free
