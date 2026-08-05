@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
@@ -18,11 +18,7 @@ const CarDetail = () => {
     });
     const [submitting, setSubmitting] = useState(false);
 
-    useEffect(() => {
-        loadCar();
-    }, [id]);
-
-    const loadCar = async () => {
+    const loadCar = useCallback(async () => {
         try {
             const response = await carService.getById(id);
             setCar(response.data);
@@ -32,7 +28,11 @@ const CarDetail = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, navigate]);
+
+    useEffect(() => {
+        loadCar();
+    }, [loadCar]);
 
     const handleBookingChange = (e) => {
         setBooking({ ...booking, [e.target.name]: e.target.value });
