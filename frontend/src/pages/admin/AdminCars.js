@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Button, Modal, Form, Alert, Spinner } from 'react-bootstrap';
+import { Container, Table, Button, Modal, Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { carService } from '../../services/api';
 import { toast } from 'react-toastify';
 
