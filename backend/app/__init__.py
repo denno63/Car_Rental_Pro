@@ -1,8 +1,3 @@
-"""
-RentWheel - Car Rental Management System
-Flask Application Factory Pattern
-"""
-
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -44,7 +39,7 @@ def create_app(config_object=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    # Configure CORS - Allow all origins
+    # Configure CORS
     CORS(app, resources={
         r"/*": {
             "origins": "*",
@@ -171,7 +166,7 @@ def create_app(config_object=None):
             'error': 'Token has been revoked'
         }), 401
 
-    # Register blueprints
+    # Register blueprints 
     from app.routes import auth_bp, car_bp, rental_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(car_bp, url_prefix='/api')

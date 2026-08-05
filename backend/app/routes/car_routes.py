@@ -10,7 +10,7 @@ from app.utils.decorators import admin_required
 from sqlalchemy import or_, and_
 import math
 
-car_bp = Blueprint('cars', __name__, url_prefix='/api/cars')
+car_bp = Blueprint('cars', __name__, url_prefix='/cars')
 
 # Initialize schemas
 car_schema = CarSchema()

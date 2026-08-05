@@ -10,7 +10,7 @@ from app.utils.decorators import admin_required
 from datetime import datetime, timedelta
 import math
 
-rental_bp = Blueprint('rentals', __name__, url_prefix='/api/rentals')
+rental_bp = Blueprint('rentals', __name__, url_prefix='/rentals')
 
 # Initialize schemas
 rental_schema = RentalSchema()
