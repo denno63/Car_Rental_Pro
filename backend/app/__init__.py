@@ -1,3 +1,8 @@
+"""
+RentWheel - Car Rental Management System
+Flask Application Factory Pattern
+"""
+
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -15,7 +20,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 ma = Marshmallow()
-cors = CORS()
 
 
 def create_app(config_object=None):
@@ -41,17 +45,22 @@ def create_app(config_object=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
     ma.init_app(app)
-    
-    # Configure CORS - Allow multiple origins
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
-    cors.init_app(app, origins=[
-        frontend_url,
-        'https://rentwheel-frontend.vercel.app',
-        'https://rentwheel-frontend-2ddtumcnc-denno63s-projects.vercel.app',
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'https://rentwheel-frontend-git-main-denno63s-projects.vercel.app'
-    ], supports_credentials=True)
+
+    # Configure CORS - Allow all origins (for testing)
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        },
+        r"/*": {
+            "origins": "*",
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        }
+    })
 
     # JWT Callbacks
     @jwt.user_identity_loader
