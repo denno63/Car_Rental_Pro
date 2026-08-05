@@ -1,8 +1,3 @@
-"""
-RentWheel - Car Rental Management System
-Flask Application Factory Pattern
-"""
-
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -94,11 +89,10 @@ def create_app(config_object=None):
     # Import models (for Flask-Migrate to detect)
     from app.models import User, Car, Rental, Payment  # noqa
 
-    # Register blueprints
-    from app.routes import auth_bp, car_bp, rental_bp
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(car_bp)
-    app.register_blueprint(rental_bp)
+    # Register blueprints with url_prefix
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(car_bp, url_prefix='/api/cars')
+    app.register_blueprint(rental_bp, url_prefix='/api/rentals')
 
     @app.route('/')
     def home():
