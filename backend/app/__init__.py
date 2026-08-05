@@ -1,8 +1,9 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager, get_jwt_identity
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_marshmallow import Marshmallow
 import os
 from dotenv import load_dotenv
 
@@ -13,6 +14,7 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
+ma = Marshmallow()
 cors = CORS()
 
 
@@ -38,7 +40,18 @@ def create_app(config_object=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    cors.init_app(app, origins=os.getenv('FRONTEND_URL', 'http://localhost:3000'))
+    ma.init_app(app)
+    
+    # Configure CORS - Allow multiple origins
+    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+    cors.init_app(app, origins=[
+        frontend_url,
+        'https://rentwheel-frontend.vercel.app',
+        'https://rentwheel-frontend-2ddtumcnc-denno63s-projects.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'https://rentwheel-frontend-git-main-denno63s-projects.vercel.app'
+    ], supports_credentials=True)
 
     # JWT Callbacks
     @jwt.user_identity_loader
@@ -89,10 +102,11 @@ def create_app(config_object=None):
     # Import models (for Flask-Migrate to detect)
     from app.models import User, Car, Rental, Payment  # noqa
 
-    # Register blueprints with url_prefix
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(car_bp, url_prefix='/api/cars')
-    app.register_blueprint(rental_bp, url_prefix='/api/rentals')
+    # Register blueprints
+    from app.routes import auth_bp, car_bp, rental_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(car_bp)
+    app.register_blueprint(rental_bp)
 
     @app.route('/')
     def home():
